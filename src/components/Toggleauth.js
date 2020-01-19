@@ -1,19 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
 function Toggleauth() {
+	const { isAuthenticated, toggleAuth } = useContext(AuthContext);
 	return (
-		<AuthContext.Consumer>
-			{context => {
-				const { isAuthenticated, toggleAuth } = context;
-
-				return (
-					<button onClick={toggleAuth} className="Auth">
-						{isAuthenticated ? 'Logout' : 'Please Login'}
-					</button>
-				);
-			}}
-		</AuthContext.Consumer>
+		<button onClick={toggleAuth} className="Auth">
+			{isAuthenticated ? 'Logout' : 'Please Login to see book list'}
+		</button>
 	);
 }
 

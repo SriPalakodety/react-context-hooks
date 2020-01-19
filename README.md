@@ -66,3 +66,117 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `yarn build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+
+### notes
+Example of context provider using class component
+    
+    import React, { Component, createContext } from 'react';
+    
+    export const AuthContext = createContext();
+    
+    class AuthContextProvider extends Component {
+    	state = {
+    		isAuthenticated: false,
+    	};
+    	toggleAuth = () => {
+    		this.setState({ isAuthenticated: !this.state.isAuthenticated });
+    	};
+    	render() {
+    		const { children } = this.props;
+    		return (
+    			<AuthContext.Provider value={{ ...this.state, toggleAuth: this.toggleAuth }}>
+    				{children}
+    			</AuthContext.Provider>
+    		);
+    	}
+    }
+    
+    export default AuthContextProvider;
+
+
+Example of context provider using functional component
+
+    import React, { useState, createContext } from 'react';
+    
+    export const AuthContext = createContext();
+    
+    function AuthContextProvider(props) {
+    	const [isAuthenticated, setIsAuthenticated] = useState(false);
+    	const toggleAuth = () => {
+    		setIsAuthenticated(!isAuthenticated);
+    	};
+    	return (
+    		<AuthContext.Provider value={{ isAuthenticated, toggleAuth: toggleAuth }}>
+    			{props.children}
+    		</AuthContext.Provider>
+    	);
+    }
+    
+    export default AuthContextProvider;
+
+
+Example of using multiple contexts using context consumer
+
+ 	import React, { useContext } from 'react';
+     import { ThemeContext } from '../context/ThemeContext';
+     import { AuthContext } from '../context/AuthContext';
+     
+ 	function Booklist() {
+      // This way(static) is not suggested as it can't be used
+      // in functional components
+      // static contextType = ThemeContext;
+ 	// One more advantage of this approach is we can use multiple contexts
+ 	// in one component
+ 	return (
+ 		<AuthContext.Consumer>
+ 			{authContext => {
+ 				return (
+ 					<ThemeContext.Consumer>
+ 						{themeContext => {
+ 							const { isLightTheme, light, dark } = themeContext;
+ 							const theme = isLightTheme ? light : dark;
+ 							const { isAuthenticated } = authContext;
+ 							return isAuthenticated ? (
+ 								<div className="book-list" style={{ backgroundColor: theme.bg, color: theme.color }}>
+ 									<ul>
+ 										<li style={{ backgroundColor: theme.ui }}>the way of kings</li>
+ 										<li style={{ backgroundColor: theme.ui }}>the name of the wind</li>
+ 										<li style={{ backgroundColor: theme.ui }}>the final empire</li>
+ 									</ul>
+ 								</div>
+ 							) : (
+ 								''
+ 							);
+ 						}}
+ 					</ThemeContext.Consumer>
+ 				);
+ 			}}
+ 		</AuthContext.Consumer>
+ 	);
+ 	}
+ 
+ 
+ Same example using useContext hook
+
+     import React, { useContext } from 'react';
+     import { ThemeContext } from '../context/ThemeContext';
+     import { AuthContext } from '../context/AuthContext';
+     
+     function Booklist() {
+     	const { isLightTheme, light, dark } = useContext(ThemeContext);
+     	const theme = isLightTheme ? light : dark;
+     	const { isAuthenticated } = useContext(AuthContext);
+ 	    return isAuthenticated ? (
+            <div className="book-list" style={{ backgroundColor: theme.bg, color: theme.color }}>
+                <ul>
+                    <li style={{ backgroundColor: theme.ui }}>the way of kings</li>
+                    <li style={{ backgroundColor: theme.ui }}>the name of the wind</li>
+                    <li style={{ backgroundColor: theme.ui }}>the final empire</li>
+                </ul>
+            </div>
+ 	    ) : null;
+    }
+ 
+    export default Booklist;
+
